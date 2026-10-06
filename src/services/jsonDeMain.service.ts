@@ -305,27 +305,10 @@ class JSonDeMainService {
       data.cliente.tipoOperacion = data.cliente.tipo_operacion;
     }
 
-    if (data.cliente?.tipoOperacion == 3) {
-      //B2G
-      //Completar los datos de la DNCP de forma predeterminada.
-      if (!data.dncp) {
-        data.dncp = {};
-        data.dncp.modalidad = '11';
-        data.dncp.entidad = '11111';
-        data.dncp.secuencia = '1111111';
-        data.dncp.año = '11';
-        let fechaContratacion = new Date();
-        fechaContratacion.setDate(fechaContratacion.getDate() - 30); //1 mes antes
-        data.dncp.fecha = fechaUtilService.convertToAAAA_MM_DD(fechaContratacion);
-      } else {
-        if (data.dncp?.ano) {
-          data.dncp.año = data.dncp.ano;
-        }
-      }
-    } else {
-      if (data.dncp?.ano) {
-        data.dncp.año = data.dncp.ano;
-      }
+    //DNCP (E020 gCompPub): desde la NT 26 es opcional para B2G (D202=3), así que ya no se
+    //completa con datos predeterminados; si no se informa, el grupo no se genera.
+    if (data.dncp?.ano) {
+      data.dncp.año = data.dncp.ano;
     }
     //Campo que puede ser un numero = 0, hay que validar de esta forma
     if (typeof data.cliente != 'undefined' && typeof data.cliente.numero_casa != 'undefined') {
@@ -554,17 +537,8 @@ class JSonDeMainService {
           }
         }
 
-        //Datos predeterminados para DNCP, si no se le pasa
-        if (data.cliente?.tipoOperacion == 3) {
-          //B2G - NT20
-          if (!item.dncp) {
-            item.dncp = {};
-            item.dncp.codigoNivelGeneral = '00000000';
-            item.dncp.codigoNivelEspecifico = '000';
-            item.dncp.codigoGtinProducto = '11111111'; //Numerico
-            item.dncp.codigoNivelPaquete = '11111111'; //Numerico
-          }
-        }
+        //DNCP por item (E704 dDncpG / E705 dDncpE): desde la NT 26 son opcionales para B2G
+        //(D202=3), así que ya no se completan con datos predeterminados; se generan sólo si vienen.
 
         //Importador
         if (item.importador) {

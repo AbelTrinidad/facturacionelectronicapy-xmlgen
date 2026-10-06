@@ -1084,6 +1084,14 @@ class JSonDeMainValidateService {
    * @param options
    */
   private generateDatosEspecificosPorTipoDE_ComprasPublicasValidate(params: any, data: any) {
+    //NT 26: el grupo E020 (gCompPub) es opcional para B2G (se excluyen los rechazos 1400 y 1401).
+    //Sólo se valida si se informa algún dato; si viene, el grupo debe estar completo (XSD).
+    const dncpInformado =
+      data['dncp'] && Object.values(data['dncp']).some((valor: any) => valor != null && valor !== '');
+    if (!dncpInformado) {
+      return;
+    }
+
     if (!(data['dncp'] && data['dncp']['modalidad'] && (data['dncp']['modalidad'] + '').length == 2)) {
       this.errors.push('Debe informar la modalidad de Contratación DNCP  (2 digitos) en data.dncp.modalidad');
     }

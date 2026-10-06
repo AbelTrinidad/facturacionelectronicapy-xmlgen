@@ -335,47 +335,32 @@ class JSonDteItemValidateService {
           this.generateDatosItemsOperacionSectorAutomotoresValidate(params, data, item, i);
         }
 
-        if (data['cliente']['tipoOperacion'] && data['cliente']['tipoOperacion'] === 3) {
-          if (!item['dncp']) {
-            this.errors.push(
-              'Debe especificar los datos de la DNCP en ' +
-                'data.items[' +
-                i +
-                '].dncp para el tipo de operación 3-B2G',
-            );
-          } else {
-            if (
-              !(
-                item['dncp']['codigoNivelGeneral'] &&
-                (item['dncp']['codigoNivelGeneral'] + '').length > 0 &&
-                (item['dncp']['codigoNivelGeneral'] + '').length <= 8
-              )
-            ) {
+        //NT 26: E704 (dDncpG) y E705 (dDncpE) son opcionales para B2G (se excluyen los rechazos
+        //1800 y 1801). Se valida el formato sólo de los códigos que se informen.
+        if (data['cliente']['tipoOperacion'] && data['cliente']['tipoOperacion'] === 3 && item['dncp']) {
+          const codigoNivelGeneral = item['dncp']['codigoNivelGeneral'];
+          if (codigoNivelGeneral != null && codigoNivelGeneral !== '') {
+            if (!((codigoNivelGeneral + '').length <= 8)) {
               this.errors.push(
-                'Debe especificar los datos de la DNCP en ' +
+                'El código de la DNCP en ' +
                   'data.items[' +
                   i +
-                  '].dncp.codigoNivelGeneral (hasta 8 digitos) para el tipo de operación 3-B2G',
+                  '].dncp.codigoNivelGeneral debe tener hasta 8 digitos para el tipo de operación 3-B2G',
               );
             } else {
-              item['dncp']['codigoNivelGeneral'] = stringUtilService.leftZero(item['dncp']['codigoNivelGeneral'], 8);
+              item['dncp']['codigoNivelGeneral'] = stringUtilService.leftZero(codigoNivelGeneral, 8);
             }
+          }
 
-            if (
-              !(
-                item['dncp']['codigoNivelEspecifico'] &&
-                (item['dncp']['codigoNivelEspecifico'] + '').length >= 3 &&
-                (item['dncp']['codigoNivelEspecifico'] + '').length <= 4
-              )
-            ) {
+          const codigoNivelEspecifico = item['dncp']['codigoNivelEspecifico'];
+          if (codigoNivelEspecifico != null && codigoNivelEspecifico !== '') {
+            if (!((codigoNivelEspecifico + '').length >= 3 && (codigoNivelEspecifico + '').length <= 4)) {
               this.errors.push(
-                'Debe especificar los datos de la DNCP en ' +
+                'El código de la DNCP en ' +
                   'data.items[' +
                   i +
-                  '].dncp.codigoNivelEspecifico (3 o 4 digitos) para el tipo de operación 3-B2G',
+                  '].dncp.codigoNivelEspecifico debe tener 3 o 4 digitos para el tipo de operación 3-B2G',
               );
-            } else {
-              //item['dncp']['codigoNivelEspecifico'] = stringUtilService.leftZero( item['dncp']['codigoNivelEspecifico'], 8);
             }
           }
         }
